@@ -4,7 +4,6 @@ import com.dayz.common.entity.BaseEntity;
 import com.dayz.common.enums.ReservationStatus;
 import com.dayz.member.domain.Member;
 import com.dayz.onedayclass.domain.OneDayClassTime;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,7 +20,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.util.Assert;
 
 @Entity
 @Getter
@@ -36,6 +34,9 @@ public class Reservation extends BaseEntity {
     @Column(name = "reservation_id")
     private Long id;
 
+    @Column(name = "reservation_code", length = 100)
+    private String code;
+
     @Column(name = "people_number")
     private int peopleNumber;
 
@@ -47,7 +48,7 @@ public class Reservation extends BaseEntity {
     private ReservationStatus status;
 
     @Column(name = "reservation_date", nullable = false)
-    private LocalDate reservationDate;
+    private LocalDateTime date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -57,39 +58,29 @@ public class Reservation extends BaseEntity {
     @JoinColumn(name = "onedayclass_time_id")
     private OneDayClassTime oneDayClassTime;
 
-    public static Reservation of(Long id,int peopleNumber, int price, LocalDate date,
+    public static Reservation of(Long id, String code, int peopleNumber, int price, ReservationStatus status, LocalDateTime date,
             Member member, OneDayClassTime oneDayClassTime) {
-        Assert.notNull(id,"Reservation id null 입니다.");
-        Assert.notNull(peopleNumber,"Reservation peopleNumber null 입니다.");
-        Assert.notNull(price,"Reservation price null 입니다.");
-        Assert.notNull(date,"Reservation date null 입니다.");
-        Assert.notNull(member,"Reservation member null 입니다.");
-        Assert.notNull(oneDayClassTime,"Reservation oneDayClassTime null 입니다.");
-
         Reservation reservation = new Reservation();
         reservation.setId(id);
+        reservation.setCode(code);
         reservation.setPeopleNumber(peopleNumber);
         reservation.setPrice(price);
-        reservation.setStatus(ReservationStatus.ACCEPTED);
-        reservation.setReservationDate(date);
+        reservation.setStatus(status);
+        reservation.setDate(date);
         reservation.changeMember(member);
         reservation.changeOneDayClassTime(oneDayClassTime);
 
         return reservation;
     }
 
-    public static Reservation of(int peopleNumber, int price, LocalDate date,
+    public static Reservation of(String code, int peopleNumber, int price, ReservationStatus status, LocalDateTime date,
             Member member, OneDayClassTime oneDayClassTime) {
-        Assert.notNull(peopleNumber,"Reservation peopleNumber null 입니다.");
-        Assert.notNull(price,"Reservation price null 입니다.");
-        Assert.notNull(date,"Reservation date null 입니다.");
-        Assert.notNull(member,"Reservation member null 입니다.");
-        Assert.notNull(oneDayClassTime,"Reservation oneDayClassTime null 입니다.");
         Reservation reservation = new Reservation();
+        reservation.setCode(code);
         reservation.setPeopleNumber(peopleNumber);
         reservation.setPrice(price);
-        reservation.setStatus(ReservationStatus.ACCEPTED);
-        reservation.setReservationDate(date);
+        reservation.setStatus(status);
+        reservation.setDate(date);
         reservation.changeMember(member);
         reservation.changeOneDayClassTime(oneDayClassTime);
 
@@ -104,8 +95,4 @@ public class Reservation extends BaseEntity {
         this.setOneDayClassTime(oneDayClassTime);
     }
 
-    @Override
-    public void changeUseFlag(boolean useFlag) {
-        super.changeUseFlag(useFlag);
-    }
 }
